@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{ .Site.Title }} — filesystem drivers for Go</title>
+<link rel="icon" href="{{ "img/go-filesystems.png" | relURL }}">
+<link rel="stylesheet" href="{{ "css/brand.css" | relURL }}">
+</head><body>
+<section class="hero">
+  <img src="{{ "img/go-filesystems-white.png" | relURL }}" alt="go-filesystems">
+  <h1>go-filesystems</h1>
+  <p>Pure-Go filesystem drivers — read & write disk images, no cgo, no root.</p>
+  <div class="btns">
+    <a class="btn btn-solid" href="https://go-filesystems.github.io/docs/">Documentation</a>
+    <a class="btn btn-ghost" href="https://github.com/go-filesystems">GitHub</a>
+  </div>
+</section>
+<div class="wrap">
+  <div class="panel">
+    <h2>One small contract</h2>
+    <p class="sub">Every driver implements <code>filesystem.Filesystem</code> from
+      <a href="https://github.com/go-filesystems/interface">go-filesystems/interface</a>.</p>
+    <pre><code>type Filesystem interface {
+	Close() error
+	ReadFile(path string) ([]byte, error)
+	ListDir(path string) ([]DirEntry, error)
+	Stat(path string) (Stat, error)
+	WriteFile(path string, data []byte, perm os.FileMode) error
+	ReadLink(path string) (string, error)
+	MkDir(path string, perm os.FileMode) error
+	DeleteFile(path string) error
+	DeleteDir(path string) error
+	Rename(oldPath, newPath string) error
+}</code></pre>
+  </div>
+  <h2 class="section">Filesystem drivers</h2>
+  <p class="sub">{{ len site.Data.fs.modules }} modules available today — generated from the org's repos.</p>
+  <div class="grid">
+  {{ range site.Data.fs.modules }}
+    <a class="card" href="https://github.com/go-filesystems/{{ .name }}">
+      <img src="{{ (printf "img/go-filesystems-%s.png" .name) | relURL }}" alt="{{ .name }}">
+      <div><div class="nm">{{ .name }}</div><div class="ds">{{ .desc }}</div></div>
+    </a>
+  {{ end }}
+  </div>
+</div>
+<footer>Built with Hugo · Branding from <a href="https://github.com/go-filesystems/brand">go-filesystems/brand</a></footer>
+</body></html>

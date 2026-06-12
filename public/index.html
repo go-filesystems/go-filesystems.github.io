@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en"><head>
+	<meta name="generator" content="Hugo 0.161.1"><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1315&amp;path=livereload" data-no-instant defer></script>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>go-filesystems — filesystem drivers for Go</title>
+<link rel="icon" href="/img/go-filesystems.png">
+<link rel="stylesheet" href="/css/brand.css">
+</head><body>
+<section class="hero">
+  <img src="/img/go-filesystems-white.png" alt="go-filesystems">
+  <h1>go-filesystems</h1>
+  <p>Pure-Go filesystem drivers — read & write disk images, no cgo, no root.</p>
+  <div class="btns">
+    <a class="btn btn-solid" href="https://go-filesystems.github.io/docs/">Documentation</a>
+    <a class="btn btn-ghost" href="https://github.com/go-filesystems">GitHub</a>
+  </div>
+</section>
+<div class="wrap">
+  <div class="panel">
+    <h2>One small contract</h2>
+    <p class="sub">Every driver implements <code>filesystem.Filesystem</code> from
+      <a href="https://github.com/go-filesystems/interface">go-filesystems/interface</a>.</p>
+    <pre><code>type Filesystem interface {
+	Close() error
+	ReadFile(path string) ([]byte, error)
+	ListDir(path string) ([]DirEntry, error)
+	Stat(path string) (Stat, error)
+	WriteFile(path string, data []byte, perm os.FileMode) error
+	ReadLink(path string) (string, error)
+	MkDir(path string, perm os.FileMode) error
+	DeleteFile(path string) error
+	DeleteDir(path string) error
+	Rename(oldPath, newPath string) error
+}</code></pre>
+  </div>
+  <h2 class="section">Filesystem drivers</h2>
+  <p class="sub">10 modules available today — generated from the org's repos.</p>
+  <div class="grid">
+  
+    <a class="card" href="https://github.com/go-filesystems/apfs">
+      <img src="/img/go-filesystems-apfs.png" alt="apfs">
+      <div><div class="nm">apfs</div><div class="ds">Apple File System.</div></div>
+    </a>
+  
+    <a class="card" href="https://github.com/go-filesystems/btrfs">
+      <img src="/img/go-filesystems-btrfs.png" alt="btrfs">
+      <div><div class="nm">btrfs</div><div class="ds">Copy-on-write Linux fs with snapshots and subvolumes.</div></div>
+    </a>
+  
+    <a class="card" href="https://github.com/go-filesystems/exfat">
+      <img src="/img/go-filesystems-exfat.png" alt="exfat">
+      <div><div class="nm">exfat</div><div class="ds">Extended FAT for large media.</div></div>
+    </a>
+  
+    <a class="card" href="https://github.com/go-filesystems/ext4">
+      <img src="/img/go-filesystems-ext4.png" alt="ext4">
+      <div><div class="nm">ext4</div><div class="ds">Linux ext4 — extents, 64-bit, journaling, metadata_csum.</div></div>
+    </a>
+  
+    <a class="card" href="https://github.com/go-filesystems/fat32">
+      <img src="/img/go-filesystems-fat32.png" alt="fat32">
+      <div><div class="nm">fat32</div><div class="ds">FAT with 32-bit allocation.</div></div>
+    </a>
+  
+    <a class="card" href="https://github.com/go-filesystems/ntfs">
+      <img src="/img/go-filesystems-ntfs.png" alt="ntfs">
+      <div><div class="nm">ntfs</div><div class="ds">Windows NT filesystem.</div></div>
+    </a>
+  
+    <a class="card" href="https://github.com/go-filesystems/uefi">
+      <img src="/img/go-filesystems-uefi.png" alt="uefi">
+      <div><div class="nm">uefi</div><div class="ds">EFI System Partition (FAT-based).</div></div>
+    </a>
+  
+    <a class="card" href="https://github.com/go-filesystems/ufs">
+      <img src="/img/go-filesystems-ufs.png" alt="ufs">
+      <div><div class="nm">ufs</div><div class="ds">Unix File System (BSD).</div></div>
+    </a>
+  
+    <a class="card" href="https://github.com/go-filesystems/xfs">
+      <img src="/img/go-filesystems-xfs.png" alt="xfs">
+      <div><div class="nm">xfs</div><div class="ds">High-performance journaling filesystem.</div></div>
+    </a>
+  
+    <a class="card" href="https://github.com/go-filesystems/zfs">
+      <img src="/img/go-filesystems-zfs.png" alt="zfs">
+      <div><div class="nm">zfs</div><div class="ds">Copy-on-write pooled storage filesystem.</div></div>
+    </a>
+  
+  </div>
+</div>
+<footer>Built with Hugo · Branding from <a href="https://github.com/go-filesystems/brand">go-filesystems/brand</a></footer>
+</body></html>

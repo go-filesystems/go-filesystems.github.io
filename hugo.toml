@@ -1,0 +1,4 @@
+baseURL = "https://go-filesystems.github.io/"
+languageCode = "en-us"
+title = "go-filesystems"
+disableKinds = ["taxonomy", "term", "RSS", "sitemap"]
