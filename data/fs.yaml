@@ -4,6 +4,7 @@ modules:
   - { name: "exfat", desc: "Extended FAT for large media." }
   - { name: "ext4", desc: "Linux ext4 — extents, 64-bit, journaling, metadata_csum." }
   - { name: "fat32", desc: "FAT with 32-bit allocation." }
+  - { name: "iso9660", desc: "ISO 9660 / ECMA-119 optical-disc filesystem." }
   - { name: "ntfs", desc: "Windows NT filesystem." }
   - { name: "squashfs", desc: "Compressed read-only archive filesystem." }
   - { name: "uefi", desc: "EFI System Partition (FAT-based)." }
