@@ -5,6 +5,7 @@ modules:
   - { name: "ext4", desc: "Linux ext4 — extents, 64-bit, journaling, metadata_csum." }
   - { name: "fat32", desc: "FAT with 32-bit allocation." }
   - { name: "ntfs", desc: "Windows NT filesystem." }
+  - { name: "squashfs", desc: "Compressed read-only archive filesystem." }
   - { name: "uefi", desc: "EFI System Partition (FAT-based)." }
   - { name: "ufs", desc: "Unix File System (BSD)." }
   - { name: "xfs", desc: "High-performance journaling filesystem." }
