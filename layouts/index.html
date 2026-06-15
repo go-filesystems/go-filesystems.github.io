@@ -112,7 +112,7 @@
     <p class="sub">The shared contract plus every filesystem driver that actually exists in the org today.
       Capabilities reflect what each driver implements now, not just what the on-disk format allows.</p>
     <section class="grid">
-      {{ range hugo.Data.fs.modules }}
+      {{ range site.Data.fs.modules }}
       <article class="card">
         <h3>
           <a href="https://github.com/go-filesystems/{{ .name }}"><code>{{ .name }}</code></a>
