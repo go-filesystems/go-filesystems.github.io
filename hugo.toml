@@ -1,4 +1,8 @@
 baseURL = "https://go-filesystems.github.io/"
-languageCode = "en-us"
+[languages.en]
+  weight = 1
 title = "go-filesystems"
-disableKinds = ["taxonomy", "term", "RSS", "sitemap"]
+disableKinds = ["taxonomy", "term", "RSS", "sitemap", "404"]
+
+[markup.goldmark.renderer]
+  unsafe = true
