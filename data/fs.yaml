@@ -36,6 +36,10 @@ modules:
     kind: driver
     ci: false
     desc: "Windows NT filesystem — minimal in-image blob model (NOT the real NTFS on-disk format). Read, write, format and volume label."
+  - name: oci
+    kind: driver
+    ci: true
+    desc: "Read-only OCI / Docker image filesystem — overlays an image's tar layers (whiteouts, opaque directories, hardlinks, symlinks) and serves the merged rootfs through the shared contract. Image-as-filesystem, not an on-disk format."
   - name: squashfs
     kind: driver
     ci: false
