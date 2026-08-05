@@ -1,52 +1,61 @@
 # One card per real, non-fork repo in the go-filesystems org.
-# kind  = driver | core (the shared contract)
-# ci    = true only when the repo actually has a working .github/workflows/ci.yml
-#         badge (verified live: only apfs, ufs, interface today). Honest claims only.
+# kind  = driver | core (the shared contract) | tool (meta-importer, not a format)
+# ci    = true when the repo has a working .github/workflows/ci.yml badge.
+#         Verified live 2026-08-05: every repo below has a green `ci` workflow
+#         (native amd64/arm64 + emulated loong64/ppc64le/riscv64/s390x).
 # No coverage badges — the org publishes no coverage gate/badge today.
 modules:
   - name: interface
     kind: core
     ci: true
     desc: "The shared <code>filesystem.Filesystem</code> contract every driver implements — Read/Write/List/Stat/MkDir/Rename and friends. No cgo, no root."
+  - name: detect
+    kind: tool
+    ci: true
+    desc: "blkid-style filesystem-type prober and driver-opener registry — probes on-disk magic signatures and dispatches to a registered driver. No cgo, no libblkid."
   - name: apfs
     kind: driver
     ci: true
-    desc: "Apple File System — real APFS on-disk (kext-mountable), GPT-aware. Read, write, format, symlinks and snapshots."
+    desc: "Apple File System — real APFS on-disk (kext-mountable), GPT-aware. Read, write, format, symlinks, snapshots and container resize."
   - name: btrfs
     kind: driver
-    ci: false
+    ci: true
     desc: "Copy-on-write Linux filesystem with snapshots and subvolumes. Single-device, CRC32c (btrfs-progs ≥ 5.x). Read, write, format."
   - name: exfat
     kind: driver
-    ci: false
+    ci: true
     desc: "Extended FAT for large removable media. Read, write, format and volume label."
   - name: ext4
     kind: driver
-    ci: false
-    desc: "Linux ext4 — extents, 64-bit block numbers, flex_bg, directory htree, journaling, metadata_csum (CRC32c). Read, write, format, symlinks."
+    ci: true
+    desc: "Linux ext4 — extents, 64-bit block numbers, flex_bg, directory htree, journaling, metadata_csum (CRC32c). Read, write, format, symlinks, online grow/shrink."
   - name: fat32
     kind: driver
-    ci: false
+    ci: true
     desc: "FAT with 32-bit allocation — the cross-platform baseline. Read, write, format and volume label."
+  - name: hfsplus
+    kind: driver
+    ci: true
+    desc: "Apple HFS+ / HFSX (Mac OS Extended) — big-endian catalog + extents-overflow B-trees. Read, write, format."
   - name: iso9660
     kind: driver
-    ci: false
+    ci: true
     desc: "ISO 9660 / ECMA-119 optical-disc filesystem, plus Rock Ridge (names/perms/symlinks) and Joliet (UCS-2 names). Read-only."
   - name: ntfs
     kind: driver
-    ci: false
-    desc: "Windows NT filesystem — minimal in-image blob model (NOT the real NTFS on-disk format). Read, write, format and volume label."
+    ci: true
+    desc: "Windows NT filesystem — minimal in-image blob model (NOT the real NTFS on-disk format); a separate read-only real-NTFS reader parses the genuine on-disk structures. Read, write, format and volume label."
   - name: oci
     kind: driver
     ci: true
     desc: "Read-only OCI / Docker image filesystem — overlays an image's tar layers (whiteouts, opaque directories, hardlinks, symlinks) and serves the merged rootfs through the shared contract. Image-as-filesystem, not an on-disk format."
   - name: squashfs
     kind: driver
-    ci: false
+    ci: true
     desc: "Compressed read-only archive filesystem. SquashFS 4.0 with gzip/xz/zstd/lzo/lz4 blocks and fragments. Read and format."
   - name: uefi
     kind: driver
-    ci: false
+    ci: true
     desc: "EFI System Partition (FAT-based) plus the OVMF/EDK2 NvVar variable store with time-based authenticated writes. Read, write, format."
   - name: ufs
     kind: driver
@@ -54,13 +63,13 @@ modules:
     desc: "Unix File System (BSD) — UFS2 (FreeBSD 14.x) read+write, UFS1 read. Read, write, format, symlinks."
   - name: ffs
     kind: driver
-    ci: false
+    ci: true
     desc: "NetBSD/OpenBSD FFSv1/FFSv2 alias module over the ufs driver. Read, write, format."
   - name: xfs
     kind: driver
-    ci: false
-    desc: "High-performance journaling filesystem — XFS v5 (CRC32c, ftype). Read, write, format, symlinks and volume label."
+    ci: true
+    desc: "High-performance journaling filesystem — XFS v5 (CRC32c, ftype). Read, write, format, symlinks, reflink/quotas and grow/resize."
   - name: zfs
     kind: driver
-    ci: false
-    desc: "Copy-on-write pooled storage filesystem — single pool / single vdev (test-oriented subset). Read, write, format and snapshots."
+    ci: true
+    desc: "Copy-on-write pooled storage filesystem — single pool, single vdev writer (multi-vdev/RAID-Z read-only). Read, write, format, snapshots/clones and grow/shrink."
