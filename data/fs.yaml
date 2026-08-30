@@ -13,6 +13,10 @@ modules:
     kind: tool
     ci: true
     desc: "blkid-style filesystem-type prober and driver-opener registry — probes on-disk magic signatures and dispatches to a registered driver. No cgo, no libblkid."
+  - name: sftp
+    kind: tool
+    ci: true
+    desc: "Pure-Go <strong>SFTP server</strong> (draft-ietf-secsh-filexfer-02 v3) exporting any <code>Filesystem</code> over <code>golang.org/x/crypto/ssh</code> — reachable from every ordinary SFTP client (OpenSSH, Cyberduck, WinSCP, FileZilla, VS Code, gvfs) with nothing installed and nothing mounted. Key auth and encryption included; one image plus one process is the isolation boundary."
   - name: apfs
     kind: driver
     ci: true
