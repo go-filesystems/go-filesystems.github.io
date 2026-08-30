@@ -17,6 +17,14 @@ modules:
     kind: tool
     ci: true
     desc: "Pure-Go <strong>SFTP server</strong> (draft-ietf-secsh-filexfer-02 v3) exporting any <code>Filesystem</code> over <code>golang.org/x/crypto/ssh</code> — reachable from every ordinary SFTP client (OpenSSH, Cyberduck, WinSCP, FileZilla, VS Code, gvfs) with nothing installed and nothing mounted. Key auth and encryption included; one image plus one process is the isolation boundary."
+  - name: nfs
+    kind: tool
+    ci: true
+    desc: "NFSv3 server that exports any <code>filesystem.Filesystem</code> — mountable on macOS, Linux and Windows with no kext, no FSKit entitlement and no root on the server side. A network protocol instead of a kernel module."
+  - name: webdav
+    kind: tool
+    ci: true
+    desc: "WebDAV server (RFC 4918) that exports any <code>filesystem.Filesystem</code> as a <code>net/http.Handler</code> — browsable in a browser, mountable from the Finder or Explorer, with Basic/Bearer authentication and TLS. <code>Range</code> reads and <code>Content-Range</code> partial writes go through the random-access capabilities."
   - name: apfs
     kind: driver
     ci: true
