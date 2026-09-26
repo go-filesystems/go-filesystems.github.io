@@ -1,0 +1,18 @@
+# Does this organisation advertise what it has?
+#
+# The logic lives once, in go-fleettools; this calls it. No secret: listing a
+# public organisation is a public read.
+#
+# ⛔ data/fs.yaml opens with "One card per real, non-fork repo in the
+# go-filesystems org". That sentence was there while nine repositories were on
+# no page at all. This is what makes it true instead of hopeful.
+name: docs
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  current:
+    uses: go-fleettools/fleettools/.github/workflows/docs-current.yml@main

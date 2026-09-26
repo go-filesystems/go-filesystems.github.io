@@ -1,14 +1,36 @@
 # One card per real, non-fork repo in the go-filesystems org.
-# kind  = driver | core (the shared contract) | tool (meta-importer, not a format)
+#
+# ⛔ That sentence was here already, and was false by NINE: cab, overlay, rar,
+# rpm, s3, sevenzip, smb, unarchive and warc were in the org and on no page of
+# it. A comment promising completeness is not a mechanism for it -- the same
+# sentence, almost word for word, sat above an incomplete list in go-fsctl's
+# landing and in this org's own profile.
+#
+# What keeps it true now is go-fleettools/docscan, which compares this file
+# against the organisation and fails the build when they disagree. If you add a
+# repository and forget this file, CI says so.
+#
+# kind  = driver | core (shared by the drivers: the contract, and a parser more
+#         than one of them needs) | tool (meta-importer, not a format)
 # ci    = true when the repo has a working .github/workflows/ci.yml badge.
-#         Verified live 2026-08-05: every repo below has a green `ci` workflow
-#         (native amd64/arm64 + emulated loong64/ppc64le/riscv64/s390x).
+#         Verified live 2026-09-26 for all 31, by asking each repository for the
+#         conclusion of its last completed `ci` run on main:
+#           gh api "repos/go-filesystems/$m/actions/workflows/ci.yml/runs\
+#                   ?branch=main&status=completed&per_page=1" \
+#              --jq '.workflow_runs[0].conclusion // "NO-RUN"'
+#         ⛔ The date above used to say 2026-08-05 while eleven cards had been
+#         added since, so the sentence covered repositories nobody had checked.
+#         A dated claim ages into a false one unless re-measuring is this cheap.
 # No coverage badges — the org publishes no coverage gate/badge today.
 modules:
   - name: interface
     kind: core
     ci: true
     desc: "The shared <code>filesystem.Filesystem</code> contract every driver implements — Read/Write/List/Stat/MkDir/Rename and friends. No cgo, no root."
+  - name: cpio
+    kind: core
+    ci: true
+    desc: "cpio records — newc, crc, odc and the old binary variant, both byte orders. Deliberately <strong>not</strong> a <code>Filesystem</code>: <code>unarchive</code> indexes into a reader it keeps open and <code>rpm</code> has the payload decompressed in memory, so they share the parser and each builds its own filesystem over it."
   - name: detect
     kind: tool
     ci: true
@@ -85,3 +107,43 @@ modules:
     kind: driver
     ci: true
     desc: "Copy-on-write pooled storage filesystem — single pool, single vdev writer (multi-vdev/RAID-Z read-only). Read, write, format, snapshots/clones and grow/shrink."
+  - name: cab
+    kind: driver
+    ci: true
+    desc: "Microsoft Cabinet (<code>.cab</code>), read as a filesystem — no cgo."
+  - name: rar
+    kind: driver
+    ci: true
+    desc: "RAR read as a filesystem, including multi-volume sets."
+  - name: rpm
+    kind: driver
+    ci: true
+    desc: "RPM packages — the lead, the signature and header regions, and the payload."
+  - name: sevenzip
+    kind: driver
+    ci: true
+    desc: "7z through <code>bodgit/sevenzip</code>, and it <strong>writes</strong> — the container and the entries."
+  - name: warc
+    kind: driver
+    ci: true
+    desc: "WARC, the ISO 28500 web archive format — reader <strong>and</strong> writer."
+  - name: unarchive
+    kind: tool
+    ci: true
+    desc: "Extract any archive, everywhere Go compiles: the format is sniffed from the bytes, not the extension, and volumes are followed."
+  - name: smb
+    kind: tool
+    ci: true
+    desc: "SMB2 server exporting any <code>Filesystem</code> — mountable on Windows, macOS and Linux."
+  - name: s3
+    kind: tool
+    ci: true
+    desc: "An S3-compatible object API over any driver here."
+  - name: overlay
+    kind: tool
+    ci: true
+    desc: "Makes a read-only filesystem writable: changes land in a spool, cheaply, and one rewrite happens when you say so."
+  - name: xar
+    kind: driver
+    ci: true
+    desc: "XAR, the macOS <code>.pkg</code> installer format: a gzip'd XML table of contents and a heap."
