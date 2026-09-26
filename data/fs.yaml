@@ -10,16 +10,27 @@
 # against the organisation and fails the build when they disagree. If you add a
 # repository and forget this file, CI says so.
 #
-# kind  = driver | core (the shared contract) | tool (meta-importer, not a format)
+# kind  = driver | core (shared by the drivers: the contract, and a parser more
+#         than one of them needs) | tool (meta-importer, not a format)
 # ci    = true when the repo has a working .github/workflows/ci.yml badge.
-#         Verified live 2026-08-05: every repo below has a green `ci` workflow
-#         (native amd64/arm64 + emulated loong64/ppc64le/riscv64/s390x).
+#         Verified live 2026-09-26 for all 31, by asking each repository for the
+#         conclusion of its last completed `ci` run on main:
+#           gh api "repos/go-filesystems/$m/actions/workflows/ci.yml/runs\
+#                   ?branch=main&status=completed&per_page=1" \
+#              --jq '.workflow_runs[0].conclusion // "NO-RUN"'
+#         ⛔ The date above used to say 2026-08-05 while eleven cards had been
+#         added since, so the sentence covered repositories nobody had checked.
+#         A dated claim ages into a false one unless re-measuring is this cheap.
 # No coverage badges — the org publishes no coverage gate/badge today.
 modules:
   - name: interface
     kind: core
     ci: true
     desc: "The shared <code>filesystem.Filesystem</code> contract every driver implements — Read/Write/List/Stat/MkDir/Rename and friends. No cgo, no root."
+  - name: cpio
+    kind: core
+    ci: true
+    desc: "cpio records — newc, crc, odc and the old binary variant, both byte orders. Deliberately <strong>not</strong> a <code>Filesystem</code>: <code>unarchive</code> indexes into a reader it keeps open and <code>rpm</code> has the payload decompressed in memory, so they share the parser and each builds its own filesystem over it."
   - name: detect
     kind: tool
     ci: true
