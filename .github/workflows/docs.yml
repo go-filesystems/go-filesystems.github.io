@@ -12,6 +12,14 @@ on:
   push:
     branches: [main]
   pull_request:
+  # ⛔ A PUSH TO THIS REPOSITORY IS THE WRONG EVENT TO WATCH. The thing that
+  # makes the list wrong is a repository appearing in the ORGANISATION, which
+  # never touches this one. osfs was created 2026-09-29; this workflow last ran
+  # 2026-09-26 and was green; the page was five days out of date and nothing
+  # said so. A schedule is what notices.
+  schedule:
+    - cron: "17 6 * * *"
+  workflow_dispatch:
 
 jobs:
   current:

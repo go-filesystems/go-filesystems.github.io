@@ -139,6 +139,10 @@ modules:
     kind: tool
     ci: true
     desc: "An S3-compatible object API over any driver here."
+  - name: osfs
+    kind: driver
+    ci: true
+    desc: "A host directory as a <code>Filesystem</code>, confined with <code>os.Root</code>. Every other driver here decodes a format out of an image; this one hands each call to the host kernel, relative to one directory, so a server written against the contract can serve a plain directory without a disk image in the way."
   - name: overlay
     kind: tool
     ci: true
