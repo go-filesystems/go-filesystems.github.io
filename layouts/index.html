@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+{{/* Dark Reader repaints pages that already draw their own dark theme, as this one does: ask it to stand aside. */}}
+<meta name="darkreader-lock">
 <title>{{ .Site.Title }} — pure-Go filesystem drivers</title>
 <meta name="description" content="Pure-Go filesystem drivers — read and write on-disk filesystem images with no cgo and no root. One small shared contract, one module per filesystem: apfs, btrfs, exfat, ext4, fat32, hfsplus, iso9660, ntfs, squashfs, uefi, ufs, ffs, xfs, zfs — plus a detect/dispatch registry.">
 <style>
