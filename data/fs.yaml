@@ -31,6 +31,10 @@ modules:
     kind: core
     ci: true
     desc: "cpio records — newc, crc, odc and the old binary variant, both byte orders. Deliberately <strong>not</strong> a <code>Filesystem</code>: <code>unarchive</code> indexes into a reader it keeps open and <code>rpm</code> has the payload decompressed in memory, so they share the parser and each builds its own filesystem over it."
+  - name: hostcopy
+    kind: core
+    ci: true
+    desc: "Copies a byte range from one driver's file into another's without holding it in memory — and without passing it through this process at all when both are files of the host, where it becomes <code>copy_file_range(2)</code>. Anything else falls back to <code>ReadAt</code>/<code>WriteAt</code>, so a caller writes one call and gets the kernel's copy when the kernel can do it."
   - name: detect
     kind: tool
     ci: true
