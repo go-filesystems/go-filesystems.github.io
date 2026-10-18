@@ -155,3 +155,7 @@ modules:
     kind: driver
     ci: true
     desc: "XAR, the macOS <code>.pkg</code> installer format: a gzip'd XML table of contents and a heap."
+  - name: remote
+    kind: tool
+    ci: true
+    desc: "A <code>Filesystem</code> served over a connection: <code>Serve</code> answers requests against any filesystem, <code>New</code> is that filesystem at the other end, with the same optional interfaces and the same errors — an errno comes back as itself, so <code>errors.Is(err, fs.ErrNotExist)</code> answers as it did on the server. It exists to keep the process that touches the files apart from the one that talks to the network: go-fileshare/fileshare serves a person's files <strong>as that person</strong>, a worker under their uid behind a front that holds no privilege. <code>conn</code> is any <code>io.ReadWriteCloser</code> — a socketpair, a pipe, a TCP connection."
