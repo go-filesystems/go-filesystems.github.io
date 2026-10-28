@@ -39,6 +39,10 @@ modules:
     kind: tool
     ci: true
     desc: "blkid-style filesystem-type prober and driver-opener registry — probes on-disk magic signatures and dispatches to a registered driver. No cgo, no libblkid."
+  - name: playground
+    kind: tool
+    ci: true
+    desc: "<strong>In-browser playground</strong> — drop a disk image into <a href=\"https://go-filesystems.github.io/playground/\">the page</a>: it says which filesystem it is, lets you browse the tree, view small files and download any file. The drivers run in WebAssembly in a Web Worker; <strong>nothing is uploaded</strong>. No image at hand? It formats a sample FAT32 one in memory."
   - name: sftp
     kind: tool
     ci: true
