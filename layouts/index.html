@@ -49,6 +49,7 @@
       filesystem images with <strong>no cgo</strong> and <strong>no root</strong>.</p>
       <div class="cta">
         <a class="btn btn-primary" href="https://go-filesystems.github.io/docs/">{{ partial "icons/book.html" . }}Documentation</a>
+        <a class="btn btn-ghost" href="https://go-filesystems.github.io/playground/">Try it in your browser</a>
         <a class="btn btn-ghost" href="https://github.com/go-filesystems">{{ partial "icons/github.html" . }}GitHub</a>
       </div>
       <div class="trust">{{ if not (partial "mantra-on.html" $) }}<span class="pill">CGO_ENABLED=0</span>{{ end }}<span class="pill">no root required</span><span class="pill">one module per filesystem</span><span class="pill">one shared contract</span>{{ if not (partial "mantra-on.html" $) }}<span class="pill">BSD-3-Clause</span>{{ end }}</div>
