@@ -74,7 +74,7 @@ modules:
   - name: fat32
     kind: driver
     ci: true
-    desc: "FAT with 32-bit allocation — the cross-platform baseline. Read, write, format and volume label; also reads FAT12 and FAT16 volumes (read-only). Allocations a hostile image can size are bounded before they happen: a cluster buffer is allocated only after its last byte has been read, and a directory is at most 2 MiB."
+    desc: "FAT with 32-bit allocation — the cross-platform baseline. Read, write, format and volume label; also reads and writes FAT12 and FAT16 volumes (no resize there). Allocations a hostile image can size are bounded before they happen: a cluster buffer is allocated only after its last byte has been read, and a directory is at most 2 MiB."
   - name: hfsplus
     kind: driver
     ci: true
