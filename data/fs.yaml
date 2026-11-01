@@ -30,7 +30,7 @@ modules:
   - name: cpio
     kind: core
     ci: true
-    desc: "cpio records — newc, crc, odc and the old binary variant, both byte orders. Deliberately <strong>not</strong> a <code>Filesystem</code>: <code>unarchive</code> indexes into a reader it keeps open and <code>rpm</code> has the payload decompressed in memory, so they share the parser and each builds its own filesystem over it."
+    desc: "cpio records — newc, crc, odc and the old binary variant, both byte orders. Deliberately <strong>not</strong> a <code>Filesystem</code>: <code>unarchive</code> indexes into a reader it keeps open and <code>rpm</code> has the payload decompressed in memory, so they share the parser and each builds its own filesystem over it. Bounds input-driven allocations: <code>MaxNameSize</code> caps a name, <code>RecordsLimit</code> caps the record list, and an excess is <code>ErrTooLarge</code>."
   - name: hostcopy
     kind: core
     ci: true
@@ -46,11 +46,11 @@ modules:
   - name: sftp
     kind: tool
     ci: true
-    desc: "Pure-Go <strong>SFTP server</strong> (draft-ietf-secsh-filexfer-02 v3) exporting any <code>Filesystem</code> over <code>golang.org/x/crypto/ssh</code> — reachable from every ordinary SFTP client (OpenSSH, Cyberduck, WinSCP, FileZilla, VS Code, gvfs) with nothing installed and nothing mounted. Key auth and encryption included; one image plus one process is the isolation boundary."
+    desc: "Pure-Go <strong>SFTP server</strong> (draft-ietf-secsh-filexfer-02 v3) exporting any <code>Filesystem</code> over <code>golang.org/x/crypto/ssh</code> — reachable from every ordinary SFTP client (OpenSSH, Cyberduck, WinSCP, FileZilla, VS Code, gvfs) with nothing installed and nothing mounted. Key auth and encryption included; one image plus one process is the isolation boundary. A client-sent offset cannot size an allocation: a whole-file rewrite grows a file by at most 8 MiB past its end and to at most 1 GiB, and answers <code>SSH_FX_FAILURE</code> beyond."
   - name: nfs
     kind: tool
     ci: true
-    desc: "NFSv3 server that exports any <code>filesystem.Filesystem</code> — mountable on macOS, Linux and Windows with no kext, no FSKit entitlement and no root on the server side. A network protocol instead of a kernel module."
+    desc: "NFSv3 server that exports any <code>filesystem.Filesystem</code> — mountable on macOS, Linux and Windows with no kext, no FSKit entitlement and no root on the server side. A network protocol instead of a kernel module. The XDR decoder never allocates on a length it has not first checked, and the RPCSEC_GSS context table is bounded (<code>rpcgss.MaxContexts</code>, default <code>DefaultMaxContexts</code> = 4096)."
   - name: webdav
     kind: tool
     ci: true
@@ -66,7 +66,7 @@ modules:
   - name: exfat
     kind: driver
     ci: true
-    desc: "Extended FAT for large removable media. Read, write, format and volume label."
+    desc: "Extended FAT for large removable media. Read, write, format and volume label. Allocations a hostile image can size are bounded before they happen: a cluster buffer is allocated only after its last byte has been read, and a directory is at most 256 MiB."
   - name: ext4
     kind: driver
     ci: true
@@ -74,7 +74,7 @@ modules:
   - name: fat32
     kind: driver
     ci: true
-    desc: "FAT with 32-bit allocation — the cross-platform baseline. Read, write, format and volume label."
+    desc: "FAT with 32-bit allocation — the cross-platform baseline. Read, write, format and volume label. Allocations a hostile image can size are bounded before they happen: a cluster buffer is allocated only after its last byte has been read, and a directory is at most 2 MiB."
   - name: hfsplus
     kind: driver
     ci: true
@@ -86,11 +86,11 @@ modules:
   - name: ntfs
     kind: driver
     ci: true
-    desc: "Windows NT filesystem — minimal in-image blob model (NOT the real NTFS on-disk format); a separate read-only real-NTFS reader parses the genuine on-disk structures. Read, write, format and volume label."
+    desc: "Windows NT filesystem — minimal in-image blob model (NOT the real NTFS on-disk format); a separate read-only real-NTFS reader parses the genuine on-disk structures. Read, write, format and volume label. Bounds input-driven allocations: a data run must lie inside the image, and reads are capped at <code>DefaultMaxDataSize</code> (lowered or raised with <code>SetMaxDataSize</code>)."
   - name: oci
     kind: driver
     ci: true
-    desc: "Read-only OCI / Docker image filesystem — overlays an image's tar layers (whiteouts, opaque directories, hardlinks, symlinks) and serves the merged rootfs through the shared contract. Image-as-filesystem, not an on-disk format."
+    desc: "Read-only OCI / Docker image filesystem — overlays an image's tar layers (whiteouts, opaque directories, hardlinks, symlinks) and serves the merged rootfs through the shared contract. Image-as-filesystem, not an on-disk format. Every input-driven allocation is bounded before it happens (<code>DefaultLimits()</code>: manifests 16 MiB, 16 GiB of whole image) and an excess wraps <code>safeio.ErrTooLarge</code>."
   - name: squashfs
     kind: driver
     ci: true
@@ -98,15 +98,15 @@ modules:
   - name: uefi
     kind: driver
     ci: true
-    desc: "EFI System Partition (FAT-based) plus the OVMF/EDK2 NvVar variable store with time-based authenticated writes. Read, write, format."
+    desc: "EFI System Partition (FAT-based) plus the OVMF/EDK2 NvVar variable store with time-based authenticated writes. Read, write, format. A store file is bounded before it is read: <code>OpenLimits</code> sets <code>MaxFileSize</code> (default 256 MiB) and <code>MaxVariables</code> (default 65 536); an excess wraps <code>safeio.ErrTooLarge</code>."
   - name: ufs
     kind: driver
     ci: true
-    desc: "Unix File System (BSD) — UFS2 (FreeBSD 14.x) read+write, UFS1 read. Read, write, format, symlinks."
+    desc: "Unix File System (BSD) — UFS2 (FreeBSD 14.x) read+write, UFS1 read. Read, write, format, symlinks. A read is capped at <code>DefaultMaxFileBytes</code> (1 GiB, lowered with <code>SetMaxFileBytes</code>) and fails with <code>ErrTooLarge</code> before anything is allocated."
   - name: ffs
     kind: driver
     ci: true
-    desc: "NetBSD/OpenBSD FFSv1/FFSv2 alias module over the ufs driver. Read, write, format."
+    desc: "NetBSD/OpenBSD FFSv1/FFSv2 alias module over the ufs driver. Read, write, format. Inherits the ufs bounds on an untrusted image, including the 1 GiB <code>DefaultMaxFileBytes</code> read ceiling."
   - name: xfs
     kind: driver
     ci: true
@@ -118,15 +118,15 @@ modules:
   - name: cab
     kind: driver
     ci: true
-    desc: "Microsoft Cabinet (<code>.cab</code>), read as a filesystem — no cgo."
+    desc: "Microsoft Cabinet (<code>.cab</code>), read as a filesystem — no cgo. Every count that sizes an allocation is proved to fit in the file first; <code>ReadFile</code> is capped at <code>MaxReadFileSize</code> (1 GiB, <code>ErrTooLarge</code>)."
   - name: rar
     kind: driver
     ci: true
-    desc: "RAR read as a filesystem, including multi-volume sets."
+    desc: "RAR read as a filesystem, including multi-volume sets. Size claims in an archive are bounded by default and raised by naming them: <code>OpenLimits</code> and <code>OpenReaderLimits</code> take a <code>Limits</code>."
   - name: rpm
     kind: driver
     ci: true
-    desc: "RPM packages — the lead, the signature and header regions, and the payload."
+    desc: "RPM packages — the lead, the signature and header regions, and the payload. The size the payload inflates to is bounded: <code>OpenLimit</code> sets the ceiling, <code>Open</code> uses <code>DefaultMaxPayload</code> (1 GiB), and an excess is <code>ErrTooLarge</code>."
   - name: sevenzip
     kind: driver
     ci: true
@@ -134,11 +134,11 @@ modules:
   - name: warc
     kind: driver
     ci: true
-    desc: "WARC, the ISO 28500 web archive format — reader <strong>and</strong> writer."
+    desc: "WARC, the ISO 28500 web archive format — reader <strong>and</strong> writer. A file is read as hostile: a record's header is capped at <code>MaxHeaderBytes</code> (1 MiB), a block held in memory at <code>MaxBlockSize</code> (default 1 GiB), and an excess is <code>ErrTooLarge</code>."
   - name: unarchive
     kind: tool
     ci: true
-    desc: "Extract any archive, everywhere Go compiles: the format is sniffed from the bytes, not the extension, and volumes are followed."
+    desc: "Extract any archive, everywhere Go compiles: the format is sniffed from the bytes, not the extension, and volumes are followed. Extraction is bounded by default: <code>Options.MaxBytes</code> (64 GiB), <code>MaxEntries</code> (4,194,304) and <code>MaxDepth</code> (1024), and an index by <code>Limits</code>; an excess is <code>ErrTooLarge</code>."
   - name: smb
     kind: tool
     ci: true
@@ -154,11 +154,11 @@ modules:
   - name: overlay
     kind: tool
     ci: true
-    desc: "Makes a read-only filesystem writable: changes land in a spool, cheaply, and one rewrite happens when you say so."
+    desc: "Makes a read-only filesystem writable: changes land in a spool, cheaply, and one rewrite happens when you say so. The base is untrusted: <code>WithLimits</code> bounds what <code>Seal</code> walks (<code>MaxEntries</code> 4 Mi, <code>MaxDepth</code> 2048) and the spool (<code>MaxSpool</code>); an excess wraps <code>ErrTooLarge</code>."
   - name: xar
     kind: driver
     ci: true
-    desc: "XAR, the macOS <code>.pkg</code> installer format: a gzip'd XML table of contents and a heap."
+    desc: "XAR, the macOS <code>.pkg</code> installer format: a gzip'd XML table of contents and a heap. Every size the archive claims is checked before it is allocated: <code>OpenReaderWith</code> takes <code>Options</code>, with <code>DefaultMaxEntries</code> (1,048,576) and <code>DefaultMaxFileSize</code> (1 GiB); an excess is <code>ErrTooLarge</code>."
   - name: remote
     kind: tool
     ci: true
