@@ -38,7 +38,7 @@ modules:
   - name: detect
     kind: tool
     ci: true
-    desc: "blkid-style filesystem-type prober and driver-opener registry — probes on-disk magic signatures and dispatches to a registered driver. No cgo, no libblkid."
+    desc: "blkid-style filesystem-type prober and driver-opener registry — probes on-disk magic signatures and dispatches to a registered driver. No cgo, no libblkid. An image never sizes an allocation here: every probe is a fixed window of at most 8 bytes (64 for the FAT12/16 boot sector) and every read has a 1 MiB ceiling."
   - name: playground
     kind: tool
     ci: true
@@ -58,11 +58,11 @@ modules:
   - name: apfs
     kind: driver
     ci: true
-    desc: "Apple File System — real APFS on-disk (kext-mountable), GPT-aware. Read, write, format, symlinks, snapshots and container resize."
+    desc: "Apple File System — real APFS on-disk (kext-mountable), GPT-aware. Read, write, format, symlinks, snapshots and container resize. Input-driven allocations are bounded before they are made: file reads by the backing store's real size, sparse holes and decmpfs sizes by 1 GiB (<code>safeio.ErrTooLarge</code>)."
   - name: btrfs
     kind: driver
     ci: true
-    desc: "Copy-on-write Linux filesystem with snapshots and subvolumes. Single-device, CRC32c (btrfs-progs ≥ 5.x). Read, write, format."
+    desc: "Copy-on-write Linux filesystem with snapshots and subvolumes. Single-device, CRC32c (btrfs-progs ≥ 5.x). Read, write, format. Every allocation sized from the image is checked against what the format can produce first: a compressed extent is at most 128 KiB (the kernel's <code>BTRFS_MAX_UNCOMPRESSED</code>), overlapping extent items are refused."
   - name: exfat
     kind: driver
     ci: true
@@ -70,7 +70,7 @@ modules:
   - name: ext4
     kind: driver
     ci: true
-    desc: "Linux ext4 — extents, 64-bit block numbers, flex_bg, directory htree, journaling, metadata_csum (CRC32c). Read, write, format, symlinks, online grow/shrink."
+    desc: "Linux ext4 — extents, 64-bit block numbers, flex_bg, directory htree, journaling, metadata_csum (CRC32c). Read, write, format, symlinks, online grow/shrink. <code>ReadFile</code> is capped at the smaller of the declared filesystem size and <code>DefaultMaxReadSize</code> (1 GiB, <code>SetMaxReadSize</code> changes it) and refused with <code>ErrTooLarge</code>; overlapping extent leaves are refused."
   - name: fat32
     kind: driver
     ci: true
@@ -78,11 +78,11 @@ modules:
   - name: hfsplus
     kind: driver
     ci: true
-    desc: "Apple HFS+ / HFSX (Mac OS Extended) — big-endian catalog + extents-overflow B-trees. Read, write, format."
+    desc: "Apple HFS+ / HFSX (Mac OS Extended) — big-endian catalog + extents-overflow B-trees. Read, write, format. A fork's size is bounded by the image size and its extents must lie inside the image before the buffer is made; the B-tree leaf-chain walk is bounded as well."
   - name: iso9660
     kind: driver
     ci: true
-    desc: "ISO 9660 / ECMA-119 optical-disc filesystem, plus Rock Ridge (names/perms/symlinks) and Joliet (UCS-2 names). Read-only."
+    desc: "ISO 9660 / ECMA-119 optical-disc filesystem, plus Rock Ridge (names/perms/symlinks) and Joliet (UCS-2 names). Read-only. A length is bounded by the image size and its extent must lie inside the image; with the size unknown the buffer grows with the bytes delivered and claims above 1 GiB are refused, and a directory extent is at most 16 MiB."
   - name: ntfs
     kind: driver
     ci: true
@@ -94,7 +94,7 @@ modules:
   - name: squashfs
     kind: driver
     ci: true
-    desc: "Compressed read-only archive filesystem. SquashFS 4.0 with gzip/xz/zstd/lzo/lz4 blocks and fragments. Read and format."
+    desc: "Compressed read-only archive filesystem. SquashFS 4.0 with gzip/xz/zstd/lzo/lz4 blocks and fragments. Read and format. <code>ReadFile</code> refuses more than <code>DefaultMaxReadFile</code> (1 GiB) with <code>ErrTooLarge</code>, <code>ReadFileLimit</code> picks another ceiling, and every size the image claims is bounded before it is allocated."
   - name: uefi
     kind: driver
     ci: true
@@ -110,11 +110,11 @@ modules:
   - name: xfs
     kind: driver
     ci: true
-    desc: "High-performance journaling filesystem — XFS v5 (CRC32c, ftype). Read, write, format, symlinks, reflink/quotas and grow/resize."
+    desc: "High-performance journaling filesystem — XFS v5 (CRC32c, ftype). Read, write, format, symlinks, reflink/quotas and grow/resize. <code>ReadFile</code> is capped at <code>DefaultMaxReadSize</code> (1 GiB, <code>SetMaxReadSize</code> changes it) and refused with <code>ErrTooLarge</code>; overlapping extent records are refused."
   - name: zfs
     kind: driver
     ci: true
-    desc: "Copy-on-write pooled storage filesystem — single pool, single vdev writer (multi-vdev/RAID-Z read-only). Read, write, format, snapshots/clones and grow/shrink."
+    desc: "Copy-on-write pooled storage filesystem — single pool, single vdev writer (multi-vdev/RAID-Z read-only). Read, write, format, snapshots/clones and grow/shrink. <code>ReadFile</code>/<code>ReadLink</code> are capped at <code>DefaultMaxReadSize</code> (1 GiB, <code>SetMaxReadSize</code> changes it) and refused with <code>ErrTooLarge</code>; block pointer sizes are limited to 16 MiB as OpenZFS does."
   - name: cab
     kind: driver
     ci: true
@@ -142,7 +142,7 @@ modules:
   - name: smb
     kind: tool
     ci: true
-    desc: "SMB2 server exporting any <code>Filesystem</code> — mountable on Windows, macOS and Linux."
+    desc: "SMB2 server exporting any <code>Filesystem</code> — mountable on Windows, macOS and Linux. Sizes a client names are bounded before they are allocated: a whole-file rewrite grows a file by at most 8 MiB past its end and to at most 1 GiB, answers <code>STATUS_DISK_FULL</code> beyond, and a negative offset or size is <code>STATUS_INVALID_PARAMETER</code>."
   - name: s3
     kind: tool
     ci: true
@@ -162,4 +162,4 @@ modules:
   - name: remote
     kind: tool
     ci: true
-    desc: "A <code>Filesystem</code> served over a connection: <code>Serve</code> answers requests against any filesystem, <code>New</code> is that filesystem at the other end, with the same optional interfaces and the same errors — an errno comes back as itself, so <code>errors.Is(err, fs.ErrNotExist)</code> answers as it did on the server. It exists to keep the process that touches the files apart from the one that talks to the network: go-fileshare/fileshare serves a person's files <strong>as that person</strong>, a worker under their uid behind a front that holds no privilege. <code>conn</code> is any <code>io.ReadWriteCloser</code> — a socketpair, a pipe, a TCP connection."
+    desc: "A <code>Filesystem</code> served over a connection: <code>Serve</code> answers requests against any filesystem, <code>New</code> is that filesystem at the other end, with the same optional interfaces and the same errors — an errno comes back as itself, so <code>errors.Is(err, fs.ErrNotExist)</code> answers as it did on the server. It exists to keep the process that touches the files apart from the one that talks to the network: go-fileshare/fileshare serves a person's files <strong>as that person</strong>, a worker under their uid behind a front that holds no privilege. <code>conn</code> is any <code>io.ReadWriteCloser</code> — a socketpair, a pipe, a TCP connection. The peer is not trusted: a frame is at most <code>MaxFrame</code> (32 MiB), checked before anything is allocated, a server holds at most 4096 files per connection, and a negative offset or truncate size is refused before the driver sees it."
