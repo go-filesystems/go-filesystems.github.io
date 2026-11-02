@@ -42,7 +42,7 @@ modules:
   - name: playground
     kind: tool
     ci: true
-    desc: "<strong>In-browser playground</strong> — drop a disk image into <a href=\"https://go-filesystems.github.io/playground/\">the page</a>: it says which filesystem it is, lets you browse the tree, view small files and download any file. The drivers run in WebAssembly in a Web Worker; <strong>nothing is uploaded</strong>. No image at hand? It formats a sample FAT32 one in memory."
+    desc: "<strong>In-browser playground</strong> — drop a disk image into <a href=\"https://go-filesystems.github.io/playground/\">the page</a>: it says which filesystem it is, lets you browse the tree, view small files and download any file. The drivers run in WebAssembly in a Web Worker; <strong>nothing is uploaded</strong>. No image at hand? It formats a sample FAT32 one in memory. A FAT image can be <strong>copied to a resized image</strong> (up to 256 MiB, FAT12, FAT16 or FAT32 as you choose) to grow it or change its type, then downloaded or opened."
   - name: sftp
     kind: tool
     ci: true
