@@ -35,6 +35,10 @@ modules:
     kind: core
     ci: true
     desc: "Copies a byte range from one driver's file into another's without holding it in memory — and without passing it through this process at all when both are files of the host, where it becomes <code>copy_file_range(2)</code>. Anything else falls back to <code>ReadAt</code>/<code>WriteAt</code>, so a caller writes one call and gets the kernel's copy when the kernel can do it."
+  - name: inflight
+    kind: core
+    ci: true
+    desc: "Bounded, optionally ordered <strong>concurrent request dispatch</strong> shared by the NFS, SMB and SFTP servers, with no protocol knowledge: a per-connection and a server-wide cap taken <em>before</em> a request is read, replies in request order or as they are ready, byte-range ordering across connections, barriers, and the <code>Filesystem</code> concurrency contract as a lock. 100% covered, race-tested, every entry point fuzzed."
   - name: detect
     kind: tool
     ci: true
@@ -46,11 +50,11 @@ modules:
   - name: sftp
     kind: tool
     ci: true
-    desc: "Pure-Go <strong>SFTP server</strong> (draft-ietf-secsh-filexfer-02 v3) exporting any <code>Filesystem</code> over <code>golang.org/x/crypto/ssh</code> — reachable from every ordinary SFTP client (OpenSSH, Cyberduck, WinSCP, FileZilla, VS Code, gvfs) with nothing installed and nothing mounted. Key auth and encryption included; one image plus one process is the isolation boundary. <strong>Up to 64 requests in flight per session</strong>, replies by request id: reads and writes run in parallel through the driver's positional <code>ReadAt</code>/<code>WriteAt</code>, overlapping ranges, opens, closes and metadata stay in order. A client-sent offset cannot size an allocation: a whole-file rewrite grows a file by at most 8 MiB past its end and to at most 1 GiB, and answers <code>SSH_FX_FAILURE</code> beyond."
+    desc: "Pure-Go <strong>SFTP server</strong> (draft-ietf-secsh-filexfer-02 v3) exporting any <code>Filesystem</code> over <code>golang.org/x/crypto/ssh</code> — reachable from every ordinary SFTP client (OpenSSH, Cyberduck, WinSCP, FileZilla, VS Code, gvfs) with nothing installed and nothing mounted. Key auth and encryption included; one image plus one process is the isolation boundary. <strong>Up to 64 requests in flight per session</strong>, replies by request id: reads and writes run in parallel through the driver's positional <code>ReadAt</code>/<code>WriteAt</code>, overlapping ranges, opens, closes and metadata stay in order; the dispatch is now the shared <code>inflight</code> module. A client-sent offset cannot size an allocation: a whole-file rewrite grows a file by at most 8 MiB past its end and to at most 1 GiB, and answers <code>SSH_FX_FAILURE</code> beyond."
   - name: nfs
     kind: tool
     ci: true
-    desc: "NFSv3 server that exports any <code>filesystem.Filesystem</code> — mountable on macOS, Linux and Windows with no kext, no FSKit entitlement and no root on the server side. A network protocol instead of a kernel module. The XDR decoder never allocates on a length it has not first checked, and the RPCSEC_GSS context table is bounded (<code>rpcgss.MaxContexts</code>, default <code>DefaultMaxContexts</code> = 4096)."
+    desc: "NFSv3 server that exports any <code>filesystem.Filesystem</code> — mountable on macOS, Linux and Windows with no kext, no FSKit entitlement and no root on the server side. A network protocol instead of a kernel module. <strong>Up to 32 calls in flight per connection</strong> (128 server-wide, taken before a record is read), replies matched by xid: READs run in parallel through the driver's <code>ReadAt</code>, everything else stays in order. The XDR decoder never allocates on a length it has not first checked, and the RPCSEC_GSS context table is bounded (<code>rpcgss.MaxContexts</code>, default <code>DefaultMaxContexts</code> = 4096)."
   - name: webdav
     kind: tool
     ci: true
@@ -142,7 +146,7 @@ modules:
   - name: smb
     kind: tool
     ci: true
-    desc: "SMB2 server exporting any <code>Filesystem</code> — mountable on Windows, macOS and Linux. Sizes a client names are bounded before they are allocated: a whole-file rewrite grows a file by at most 8 MiB past its end and to at most 1 GiB, answers <code>STATUS_DISK_FULL</code> beyond, and a negative offset or size is <code>STATUS_INVALID_PARAMETER</code>."
+    desc: "SMB2 server exporting any <code>Filesystem</code> — mountable on Windows, macOS and Linux. <strong>Up to 32 requests in flight per connection</strong> (128 server-wide, taken before a frame is read), replies matched by MessageId: READs run in parallel, compound chains and everything else stay in order. Sizes a client names are bounded before they are allocated: a whole-file rewrite grows a file by at most 8 MiB past its end and to at most 1 GiB, answers <code>STATUS_DISK_FULL</code> beyond, and a negative offset or size is <code>STATUS_INVALID_PARAMETER</code>."
   - name: s3
     kind: tool
     ci: true
