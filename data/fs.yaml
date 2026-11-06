@@ -54,7 +54,7 @@ modules:
   - name: nfs
     kind: tool
     ci: true
-    desc: "NFSv3 server that exports any <code>filesystem.Filesystem</code> — mountable on macOS, Linux and Windows with no kext, no FSKit entitlement and no root on the server side. A network protocol instead of a kernel module. <strong>Up to 32 calls in flight per connection</strong> (128 server-wide, taken before a record is read), replies matched by xid: READs run in parallel through the driver's <code>ReadAt</code>, everything else stays in order. The XDR decoder never allocates on a length it has not first checked, and the RPCSEC_GSS context table is bounded (<code>rpcgss.MaxContexts</code>, default <code>DefaultMaxContexts</code> = 4096)."
+    desc: "NFSv3 server that exports any <code>filesystem.Filesystem</code> — mountable on macOS, Linux and Windows with no kext, no FSKit entitlement and no root on the server side. A network protocol instead of a kernel module. <strong>Up to 32 calls in flight per connection</strong> (128 server-wide, taken before a record is read), replies matched by xid: READs are answered beside each other (and, with <code>WithConcurrentReads</code>, through the driver's <code>ReadAt</code> under a shared lock), everything else stays in order. The XDR decoder never allocates on a length it has not first checked, and the RPCSEC_GSS context table is bounded (<code>rpcgss.MaxContexts</code>, default <code>DefaultMaxContexts</code> = 4096)."
   - name: webdav
     kind: tool
     ci: true
