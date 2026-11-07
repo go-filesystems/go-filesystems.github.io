@@ -38,7 +38,11 @@ modules:
   - name: inflight
     kind: core
     ci: true
-    desc: "Bounded, optionally ordered <strong>concurrent request dispatch</strong> shared by the NFS, SMB and SFTP servers, with no protocol knowledge: a per-connection and a server-wide cap taken <em>before</em> a request is read, replies in request order or as they are ready, byte-range ordering across connections, barriers, and the <code>Filesystem</code> concurrency contract as a lock. 100% covered, race-tested, every entry point fuzzed."
+    desc: "Bounded, optionally ordered <strong>concurrent request dispatch</strong> shared by the NFS, SMB and SFTP servers, with no protocol knowledge: a per-connection and a server-wide cap taken <em>before</em> a request is read, replies in request order or as they are ready, byte-range ordering across connections, barriers, and the <code>Filesystem</code> concurrency contract as a lock. <strong>v0.2.0 batches replies</strong> (<code>Conn.SetBatch</code>): replies ready together leave in one <code>Write</code>, within the same memory budget. 100% covered, race-tested, every entry point fuzzed."
+  - name: ssh
+    kind: core
+    ci: true
+    desc: "A fork of <code>golang.org/x/crypto/ssh</code> with one change: the transport flushes <strong>once per channel <code>Write</code></strong> through a 64 KiB buffer, not once per packet through a 4 KiB one, so a 32 KiB packet is one <code>write(2)</code> and not two — <strong>96 → 32 writes per MiB</strong> sent. A lone packet, a request or a key exchange is still on the wire when its call returns. Same API; the change will be reported upstream."
   - name: detect
     kind: tool
     ci: true
@@ -50,7 +54,7 @@ modules:
   - name: sftp
     kind: tool
     ci: true
-    desc: "Pure-Go <strong>SFTP server</strong> (draft-ietf-secsh-filexfer-02 v3) exporting any <code>Filesystem</code> over <code>golang.org/x/crypto/ssh</code> — reachable from every ordinary SFTP client (OpenSSH, Cyberduck, WinSCP, FileZilla, VS Code, gvfs) with nothing installed and nothing mounted. Key auth and encryption included; one image plus one process is the isolation boundary. <strong>Up to 64 requests in flight per session</strong>, replies by request id: reads and writes run in parallel through the driver's positional <code>ReadAt</code>/<code>WriteAt</code>, overlapping ranges, opens, closes and metadata stay in order; the dispatch is now the shared <code>inflight</code> module. A client-sent offset cannot size an allocation: a whole-file rewrite grows a file by at most 8 MiB past its end and to at most 1 GiB, and answers <code>SSH_FX_FAILURE</code> beyond."
+    desc: "Pure-Go <strong>SFTP server</strong> (draft-ietf-secsh-filexfer-02 v3) exporting any <code>Filesystem</code> over <code>go-filesystems/ssh</code>, a fork of <code>golang.org/x/crypto/ssh</code> (v0.11.0) — reachable from every ordinary SFTP client (OpenSSH, Cyberduck, WinSCP, FileZilla, VS Code, gvfs) with nothing installed and nothing mounted. Key auth and encryption included; one image plus one process is the isolation boundary. <strong>Up to 64 requests in flight per session</strong>, replies by request id: reads and writes run in parallel through the driver's positional <code>ReadAt</code>/<code>WriteAt</code>, overlapping ranges, opens, closes and metadata stay in order; the dispatch is now the shared <code>inflight</code> module. A client-sent offset cannot size an allocation: a whole-file rewrite grows a file by at most 8 MiB past its end and to at most 1 GiB, and answers <code>SSH_FX_FAILURE</code> beyond."
   - name: nfs
     kind: tool
     ci: true
