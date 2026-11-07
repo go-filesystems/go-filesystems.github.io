@@ -26,7 +26,7 @@ modules:
   - name: interface
     kind: core
     ci: true
-    desc: "The shared <code>filesystem.Filesystem</code> contract every driver implements — Read/Write/List/Stat/MkDir/Rename and friends. No cgo, no root."
+    desc: "The shared <code>filesystem.Filesystem</code> contract every driver implements — Read/Write/List/Stat/MkDir/Rename and friends. <strong>v0.6.0 adds <code>TimesReader</code></strong>: all four file times in one call, where a time a format does not keep is <em>not recorded</em> (never a zero <code>time.Time</code> that would be written out as 1601 or 1970) and each time reports its resolution. No cgo, no root."
   - name: cpio
     kind: core
     ci: true
@@ -54,15 +54,15 @@ modules:
   - name: sftp
     kind: tool
     ci: true
-    desc: "Pure-Go <strong>SFTP server</strong> (draft-ietf-secsh-filexfer-02 v3) exporting any <code>Filesystem</code> over <code>go-filesystems/ssh</code>, a fork of <code>golang.org/x/crypto/ssh</code> (v0.11.0) — reachable from every ordinary SFTP client (OpenSSH, Cyberduck, WinSCP, FileZilla, VS Code, gvfs) with nothing installed and nothing mounted. Key auth and encryption included; one image plus one process is the isolation boundary. <strong>Up to 64 requests in flight per session</strong>, replies by request id: reads and writes run in parallel through the driver's positional <code>ReadAt</code>/<code>WriteAt</code>, overlapping ranges, opens, closes and metadata stay in order; the dispatch is now the shared <code>inflight</code> module. A client-sent offset cannot size an allocation: a whole-file rewrite grows a file by at most 8 MiB past its end and to at most 1 GiB, and answers <code>SSH_FX_FAILURE</code> beyond."
+    desc: "Pure-Go <strong>SFTP server</strong> (draft-ietf-secsh-filexfer-02 v3) exporting any <code>Filesystem</code> over <code>go-filesystems/ssh</code>, a fork of <code>golang.org/x/crypto/ssh</code> (v0.11.0) — reachable from every ordinary SFTP client (OpenSSH, Cyberduck, WinSCP, FileZilla, VS Code, gvfs) with nothing installed and nothing mounted. Key auth and encryption included; one image plus one process is the isolation boundary. <strong>Up to 64 requests in flight per session</strong>, replies by request id: reads and writes run in parallel through the driver's positional <code>ReadAt</code>/<code>WriteAt</code>, overlapping ranges, opens, closes and metadata stay in order; the dispatch is now the shared <code>inflight</code> module. A client-sent offset cannot size an allocation: a whole-file rewrite grows a file by at most 8 MiB past its end and to at most 1 GiB, and answers <code>SSH_FX_FAILURE</code> beyond. A driver's real mtime and atime appear in <code>stat</code> and <code>ls -l</code> (32-bit seconds; none recorded clears the flag instead of showing 1970)."
   - name: nfs
     kind: tool
     ci: true
-    desc: "NFSv3 server that exports any <code>filesystem.Filesystem</code> — mountable on macOS, Linux and Windows with no kext, no FSKit entitlement and no root on the server side. A network protocol instead of a kernel module. <strong>Up to 32 calls in flight per connection</strong> (128 server-wide, taken before a record is read), replies matched by xid: READs are answered beside each other (and, with <code>WithConcurrentReads</code>, through the driver's <code>ReadAt</code> under a shared lock), everything else stays in order. The XDR decoder never allocates on a length it has not first checked, and the RPCSEC_GSS context table is bounded (<code>rpcgss.MaxContexts</code>, default <code>DefaultMaxContexts</code> = 4096)."
+    desc: "NFSv3 server that exports any <code>filesystem.Filesystem</code> — mountable on macOS, Linux and Windows with no kext, no FSKit entitlement and no root on the server side. A network protocol instead of a kernel module. <strong>Up to 32 calls in flight per connection</strong> (128 server-wide, taken before a record is read), replies matched by xid: READs are answered beside each other (and, with <code>WithConcurrentReads</code>, through the driver's <code>ReadAt</code> under a shared lock), everything else stays in order. The XDR decoder never allocates on a length it has not first checked, and the RPCSEC_GSS context table is bounded (<code>rpcgss.MaxContexts</code>, default <code>DefaultMaxContexts</code> = 4096). <strong>v0.13.0 reports the driver's own atime, mtime and ctime</strong> with nanoseconds (nfstime3) instead of the server's start time for every file."
   - name: webdav
     kind: tool
     ci: true
-    desc: "WebDAV server (RFC 4918) that exports any <code>filesystem.Filesystem</code> as a <code>net/http.Handler</code> — browsable in a browser, mountable from the Finder or Explorer, with Basic/Bearer authentication and TLS. <code>Range</code> reads and <code>Content-Range</code> partial writes go through the random-access capabilities."
+    desc: "WebDAV server (RFC 4918) that exports any <code>filesystem.Filesystem</code> as a <code>net/http.Handler</code> — browsable in a browser, mountable from the Finder or Explorer, with Basic/Bearer authentication and TLS. <code>Range</code> reads and <code>Content-Range</code> partial writes go through the random-access capabilities. <code>getlastmodified</code> is the driver's mtime and <code>creationdate</code> its birth time; a time the format lacks is left out rather than invented."
   - name: apfs
     kind: driver
     ci: true
@@ -82,7 +82,7 @@ modules:
   - name: fat32
     kind: driver
     ci: true
-    desc: "FAT with 32-bit allocation — the cross-platform baseline. Read, write, format and volume label; also reads, writes and resizes FAT12 and FAT16 volumes (an in-place resize never changes the FAT type, and grows the FAT in place when it must; CopyResized copies a volume into a new image of another size or type). Allocations a hostile image can size are bounded before they happen: a cluster buffer is allocated only after its last byte has been read, and a directory is at most 2 MiB."
+    desc: "FAT with 32-bit allocation — the cross-platform baseline. Read, write, format and volume label; <strong>v0.12.0 reads each entry's write, access and creation times</strong> (2 s, a date, 10 ms; no change time), checked against <code>newfs_msdos</code> and mtools images; also reads, writes and resizes FAT12 and FAT16 volumes (an in-place resize never changes the FAT type, and grows the FAT in place when it must; CopyResized copies a volume into a new image of another size or type). Allocations a hostile image can size are bounded before they happen: a cluster buffer is allocated only after its last byte has been read, and a directory is at most 2 MiB."
   - name: hfsplus
     kind: driver
     ci: true
@@ -150,7 +150,7 @@ modules:
   - name: smb
     kind: tool
     ci: true
-    desc: "SMB2 server exporting any <code>Filesystem</code> — mountable on Windows, macOS and Linux. <strong>Up to 32 requests in flight per connection</strong> (128 server-wide, taken before a frame is read), replies matched by MessageId: READs run in parallel, compound chains and everything else stay in order. Sizes a client names are bounded before they are allocated: a whole-file rewrite grows a file by at most 8 MiB past its end and to at most 1 GiB, answers <code>STATUS_DISK_FULL</code> beyond, and a negative offset or size is <code>STATUS_INVALID_PARAMETER</code>."
+    desc: "SMB2 server exporting any <code>Filesystem</code> — mountable on Windows, macOS and Linux. <strong>Up to 32 requests in flight per connection</strong> (128 server-wide, taken before a frame is read), replies matched by MessageId: READs run in parallel, compound chains and everything else stay in order. Sizes a client names are bounded before they are allocated: a whole-file rewrite grows a file by at most 8 MiB past its end and to at most 1 GiB, answers <code>STATUS_DISK_FULL</code> beyond, and a negative offset or size is <code>STATUS_INVALID_PARAMETER</code>. <strong>v0.9.0 reports the driver's own creation, access, write and change times</strong> instead of &ldquo;now&rdquo; for every file (checked through the Linux kernel client); a time the format lacks is 0, &ldquo;not specified&rdquo;."
   - name: s3
     kind: tool
     ci: true
@@ -158,7 +158,7 @@ modules:
   - name: osfs
     kind: driver
     ci: true
-    desc: "A host directory as a <code>Filesystem</code>, confined with <code>os.Root</code>. Every other driver here decodes a format out of an image; this one hands each call to the host kernel, relative to one directory, so a server written against the contract can serve a plain directory without a disk image in the way."
+    desc: "A host directory as a <code>Filesystem</code>, confined with <code>os.Root</code>. Every other driver here decodes a format out of an image; this one hands each call to the host kernel, relative to one directory, so a server written against the contract can serve a plain directory without a disk image in the way. <strong>v0.4.0 reports the host's atime, mtime, ctime and birth time</strong> (statx on Linux)."
   - name: overlay
     kind: tool
     ci: true
