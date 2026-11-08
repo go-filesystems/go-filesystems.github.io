@@ -74,7 +74,7 @@ modules:
   - name: exfat
     kind: driver
     ci: true
-    desc: "Extended FAT for large removable media. Read, write, format and volume label. Allocations a hostile image can size are bounded before they happen: a cluster buffer is allocated only after its last byte has been read, and a directory is at most 256 MiB."
+    desc: "Extended FAT for large removable media. Read, write, format and volume label; <strong>v0.5.0 reads each entry's creation, modification and access times</strong> (10 ms, 10 ms, 2 s, with the UTC offset), checked against an image macOS <code>newfs_exfat</code> wrote. Allocations a hostile image can size are bounded before they happen: a cluster buffer is allocated only after its last byte has been read, and a directory is at most 256 MiB."
   - name: ext4
     kind: driver
     ci: true
@@ -94,7 +94,7 @@ modules:
   - name: ntfs
     kind: driver
     ci: true
-    desc: "Windows NT filesystem — minimal in-image blob model (NOT the real NTFS on-disk format); a separate read-only real-NTFS reader parses the genuine on-disk structures. Read, write, format and volume label. Bounds input-driven allocations: a data run must lie inside the image, and reads are capped at <code>DefaultMaxDataSize</code> (lowered or raised with <code>SetMaxDataSize</code>)."
+    desc: "Windows NT filesystem — minimal in-image blob model (NOT the real NTFS on-disk format); a separate read-only real-NTFS reader parses the genuine on-disk structures. Read, write, format and volume label; <strong>v0.5.0: the real-NTFS reader reports creation, modification, change and access times</strong> (100 ns, from <code>$STANDARD_INFORMATION</code>). Bounds input-driven allocations: a data run must lie inside the image, and reads are capped at <code>DefaultMaxDataSize</code> (lowered or raised with <code>SetMaxDataSize</code>)."
   - name: oci
     kind: driver
     ci: true
