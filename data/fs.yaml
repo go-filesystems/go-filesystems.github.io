@@ -46,7 +46,7 @@ modules:
   - name: detect
     kind: tool
     ci: true
-    desc: "blkid-style filesystem-type prober and driver-opener registry — probes on-disk magic signatures and dispatches to a registered driver. No cgo, no libblkid. An image never sizes an allocation here: every probe is a fixed window of at most 8 bytes (64 for the FAT12/16 boot sector) and every read has a 1 MiB ceiling."
+    desc: "blkid-style filesystem-type prober and driver-opener registry — probes on-disk magic signatures and dispatches to a registered driver. No cgo, no libblkid. An image never sizes an allocation here: every probe is a fixed window of at most 8 bytes (64 for the FAT12/16 boot sector) and every read has a 1 MiB ceiling. <strong>Encrypted containers</strong> open through <code>OpenSecret</code> / <code>OpenContainer</code> once you blank-import <code>detect/fdereg</code>: LUKS 1/2, BitLocker and VeraCrypt/TrueCrypt (the last two read-only, VeraCrypt by name only), while the core itself links no cryptography."
   - name: playground
     kind: tool
     ci: true
