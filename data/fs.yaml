@@ -31,6 +31,10 @@ modules:
     kind: core
     ci: true
     desc: "cpio records — newc, crc, odc and the old binary variant, both byte orders. Deliberately <strong>not</strong> a <code>Filesystem</code>: <code>unarchive</code> indexes into a reader it keeps open and <code>rpm</code> has the payload decompressed in memory, so they share the parser and each builds its own filesystem over it. Bounds input-driven allocations: <code>MaxNameSize</code> caps a name, <code>RecordsLimit</code> caps the record list, and an excess is <code>ErrTooLarge</code>."
+  - name: cfb
+    kind: core
+    ci: true
+    desc: "Microsoft Compound File Binary (MS-CFB, OLE2) reader — the container of <code>.doc</code>, <code>.xls</code>, <code>.msg</code> and <code>.msi</code> files and of Prim'X <code>.zed</code> archives. Version 3 and 4 sectors, the FAT, DIFAT, mini FAT and mini stream, and the red-black directory trees; streams are an <code>io.ReaderAt</code>. Read-only, and deliberately <strong>not</strong> a <code>Filesystem</code>. Every chain is bounded by the sector count and a revisited sector is a cycle (<code>ErrFormat</code>); a mini stream shorter than its chains is refused rather than zero-filled. 100% covered, race-tested, s390x, fuzzed."
   - name: hostcopy
     kind: core
     ci: true
