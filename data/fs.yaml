@@ -86,7 +86,7 @@ modules:
   - name: hfsplus
     kind: driver
     ci: true
-    desc: "Apple HFS+ / HFSX (Mac OS Extended) — big-endian catalog + extents-overflow B-trees. Read, write, format. A fork's size is bounded by the image size and its extents must lie inside the image before the buffer is made; the B-tree leaf-chain walk is bounded as well."
+    desc: "Apple HFS+ / HFSX (Mac OS Extended) — big-endian catalog + extents-overflow B-trees. Read, write, format. A fork's size is bounded by the image size and its extents must lie inside the image before the buffer is made; the B-tree leaf-chain walk is bounded as well. <strong>v0.9.0 writes a journaled volume only when its journal is empty</strong> (macOS then has nothing to replay); a journal with transactions, or one that cannot be verified, is refused with <code>ErrJournaled</code> (read-only <code>Open</code> is unchanged). Do not write an image that is mounted."
   - name: iso9660
     kind: driver
     ci: true
