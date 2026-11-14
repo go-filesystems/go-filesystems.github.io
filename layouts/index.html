@@ -7,6 +7,7 @@
 <meta name="description" content="Pure-Go filesystem drivers — read and write on-disk filesystem images with no cgo and no root. One small shared contract, one module per filesystem: apfs, btrfs, exfat, ext4, fat32, hfsplus, iso9660, ntfs, squashfs, uefi, ufs, ffs, xfs, zfs — plus a detect/dispatch registry.">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 {{ partial "styles.html" . }}
+{{ partial "btn-try-style.html" . }}
 {{/* The template's own rules for what <main> holds, kept for it alone (class legacy),
      its colours read from the kit's tokens. Written by landingmigrate. */}}
 <style>
@@ -47,11 +48,8 @@
       <h1 class="head">go-filesystems</h1>
       <p class="sub">Pure-Go <strong>filesystem drivers</strong> — read &amp; write on-disk
       filesystem images with <strong>no cgo</strong> and <strong>no root</strong>.</p>
-      <div class="cta">
-        <a class="btn btn-primary" href="https://go-filesystems.github.io/docs/">{{ partial "icons/book.html" . }}Documentation</a>
-        <a class="btn btn-ghost" href="https://go-filesystems.github.io/playground/">Try it in your browser</a>
-        <a class="btn btn-ghost" href="https://github.com/go-filesystems">{{ partial "icons/github.html" . }}GitHub</a>
-      </div>
+      {{/* [[params.cta]] in hugo.toml: the kit renders the row */}}
+      {{ partial "cta.html" . }}
       <div class="trust">{{ if not (partial "mantra-on.html" $) }}<span class="pill">CGO_ENABLED=0</span>{{ end }}<span class="pill">no root required</span><span class="pill">one module per filesystem</span><span class="pill">one shared contract</span>{{ if not (partial "mantra-on.html" $) }}<span class="pill">BSD-3-Clause</span>{{ end }}</div>
     </div>
     {{ partial "hero-carousel.html" . }}
