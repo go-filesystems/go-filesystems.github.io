@@ -46,8 +46,8 @@
   <div class="hero"><div class="wrap">
     <div>
       <h1 class="head">go-filesystems</h1>
-      <p class="sub">Pure-Go <strong>filesystem drivers</strong> — read &amp; write on-disk
-      filesystem images with <strong>no cgo</strong> and <strong>no root</strong>.</p>
+      <p class="sub">{{ if partial "mantra-on.html" . }}Go{{ else }}Pure-Go{{ end }} <strong>filesystem drivers</strong> — read &amp; write on-disk
+      filesystem images with <strong>{{ if not (partial "mantra-on.html" $) }}no cgo{{ end }}</strong> and <strong>no root</strong>.</p>
       {{/* [[params.cta]] in hugo.toml: the kit renders the row */}}
       {{ partial "cta.html" . }}
       <div class="trust">{{ if not (partial "mantra-on.html" $) }}<span class="pill">CGO_ENABLED=0</span>{{ end }}<span class="pill">no root required</span><span class="pill">one module per filesystem</span><span class="pill">one shared contract</span>{{ if not (partial "mantra-on.html" $) }}<span class="pill">BSD-3-Clause</span>{{ end }}</div>
