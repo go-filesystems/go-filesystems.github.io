@@ -163,6 +163,10 @@ modules:
     kind: driver
     ci: true
     desc: "A host directory as a <code>Filesystem</code>, confined with <code>os.Root</code>. Every other driver here decodes a format out of an image; this one hands each call to the host kernel, relative to one directory, so a server written against the contract can serve a plain directory without a disk image in the way. <strong>v0.4.0 reports the host's atime, mtime, ctime and birth time</strong> (statx on Linux)."
+  - name: kerneljudge
+    kind: tool
+    ci: true
+    desc: "The Linux kernel and the native <code>fsck</code> as the judge for go-filesystems drivers, run in a Tart VM."
   - name: overlay
     kind: tool
     ci: true
