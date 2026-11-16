@@ -126,7 +126,7 @@ modules:
   - name: zfs
     kind: driver
     ci: true
-    desc: "Copy-on-write pooled storage filesystem — single pool, single vdev writer (multi-vdev/RAID-Z read-only). Read, write, format, snapshots/clones and grow/shrink. Block checksums are verified on read; lz4 uses the shared go-compressions decoder. <code>ReadFile</code>/<code>ReadLink</code> are capped at <code>DefaultMaxReadSize</code> (1 GiB, <code>SetMaxReadSize</code> changes it) and refused with <code>ErrTooLarge</code>; block pointer sizes are limited to 16 MiB as OpenZFS does."
+    desc: "Copy-on-write pooled storage filesystem — single pool, single vdev writer (multi-vdev/RAID-Z read-only). Read, write, format, snapshots/clones and grow/shrink. Block checksums are verified on read (fletcher, SHA-2, and salted BLAKE3, Skein and Edon-R); lz4 uses the shared go-compressions decoder. <code>ReadFile</code>/<code>ReadLink</code> are capped at <code>DefaultMaxReadSize</code> (1 GiB, <code>SetMaxReadSize</code> changes it) and refused with <code>ErrTooLarge</code>; block pointer sizes are limited to 16 MiB as OpenZFS does."
   - name: cab
     kind: driver
     ci: true
