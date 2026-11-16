@@ -74,7 +74,7 @@ modules:
   - name: btrfs
     kind: driver
     ci: true
-    desc: "Copy-on-write Linux filesystem with snapshots and subvolumes. Single-device, CRC32c (btrfs-progs ≥ 5.x). Read, write, format. Every allocation sized from the image is checked against what the format can produce first: a compressed extent is at most 128 KiB (the kernel's <code>BTRFS_MAX_UNCOMPRESSED</code>), overlapping extent items are refused."
+    desc: "Copy-on-write Linux filesystem with snapshots and subvolumes. Single-device, CRC32c (btrfs-progs ≥ 5.x). Read, write, format. Reads kernel zstd extents and LZO (shared go-compressions decoder). Every allocation sized from the image is checked against what the format can produce first: a compressed extent is at most 128 KiB (the kernel's <code>BTRFS_MAX_UNCOMPRESSED</code>), overlapping extent items are refused."
   - name: exfat
     kind: driver
     ci: true
@@ -106,7 +106,7 @@ modules:
   - name: squashfs
     kind: driver
     ci: true
-    desc: "Compressed read-only archive filesystem. SquashFS 4.0 with gzip/xz/zstd/lzo/lz4 blocks and fragments. Read and format. <code>ReadFile</code> refuses more than <code>DefaultMaxReadFile</code> (1 GiB) with <code>ErrTooLarge</code>, <code>ReadFileLimit</code> picks another ceiling, and every size the image claims is bounded before it is allocated."
+    desc: "Compressed read-only archive filesystem. SquashFS 4.0 with gzip/xz/zstd/lzo/lz4 blocks and fragments (lzo and lz4 via the shared go-compressions decoders). Read and format. <code>ReadFile</code> refuses more than <code>DefaultMaxReadFile</code> (1 GiB) with <code>ErrTooLarge</code>, <code>ReadFileLimit</code> picks another ceiling, and every size the image claims is bounded before it is allocated."
   - name: uefi
     kind: driver
     ci: true
@@ -126,7 +126,7 @@ modules:
   - name: zfs
     kind: driver
     ci: true
-    desc: "Copy-on-write pooled storage filesystem — single pool, single vdev writer (multi-vdev/RAID-Z read-only). Read, write, format, snapshots/clones and grow/shrink. <code>ReadFile</code>/<code>ReadLink</code> are capped at <code>DefaultMaxReadSize</code> (1 GiB, <code>SetMaxReadSize</code> changes it) and refused with <code>ErrTooLarge</code>; block pointer sizes are limited to 16 MiB as OpenZFS does."
+    desc: "Copy-on-write pooled storage filesystem — single pool, single vdev writer (multi-vdev/RAID-Z read-only). Read, write, format, snapshots/clones and grow/shrink. Block checksums are verified on read; lz4 uses the shared go-compressions decoder. <code>ReadFile</code>/<code>ReadLink</code> are capped at <code>DefaultMaxReadSize</code> (1 GiB, <code>SetMaxReadSize</code> changes it) and refused with <code>ErrTooLarge</code>; block pointer sizes are limited to 16 MiB as OpenZFS does."
   - name: cab
     kind: driver
     ci: true
