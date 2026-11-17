@@ -106,7 +106,7 @@ modules:
   - name: squashfs
     kind: driver
     ci: true
-    desc: "Compressed read-only archive filesystem. SquashFS 4.0 with gzip/xz/zstd/lzo/lz4 blocks and fragments (lzo and lz4 via the shared go-compressions decoders). Read and format. <code>ReadFile</code> refuses more than <code>DefaultMaxReadFile</code> (1 GiB) with <code>ErrTooLarge</code>, <code>ReadFileLimit</code> picks another ceiling, and every size the image claims is bounded before it is allocated. Sequential reads decompress blocks in parallel (v0.8.0): on 4 vCPUs xz 146 MiB/s against the kernel's 48, gzip 719 against 261, zstd 1527 against 515, lz4 3137 against 977, lzo 1649 against 588; at one CPU xz, gzip, zstd and lzo are still behind the kernel."
+    desc: "Compressed read-only archive filesystem. SquashFS 4.0 with gzip/xz/zstd/lzo/lz4 blocks and fragments (lzo and lz4 via the shared go-compressions decoders). Read and format. <code>ReadFile</code> refuses more than <code>DefaultMaxReadFile</code> (1 GiB) with <code>ErrTooLarge</code>, <code>ReadFileLimit</code> picks another ceiling, and every size the image claims is bounded before it is allocated. Sequential reads decompress blocks in parallel (v0.8.0): on 4 vCPUs xz 146 MiB/s against the kernel's 48, gzip 719 against 261, zstd 1527 against 515, lz4 3137 against 977, lzo 1649 against 588; at one CPU xz, gzip, zstd and lzo are still behind the kernel. Random 4 KiB reads (v0.9.0): the data cache grows when it evicts blocks it is asked for again, up to 256 MiB (<code>SetMaxDataCache</code>); cold, 20000 reads over a 256 MiB file run at 78 % (xz), 75 % (gzip), 89 % (zstd), 87 % (lzo) and 128 % (lz4) of the kernel's rate, 5 to 10 times faster than v0.8.1."
   - name: uefi
     kind: driver
     ci: true
