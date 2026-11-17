@@ -126,7 +126,7 @@ modules:
   - name: zfs
     kind: driver
     ci: true
-    desc: "Copy-on-write pooled storage filesystem — single pool, single vdev writer (multi-vdev/RAID-Z read-only). Read, write, format, snapshots/clones and grow/shrink. Block checksums are verified on read (fletcher, SHA-2, and salted BLAKE3, Skein and Edon-R); lz4 uses the shared go-compressions decoder. <code>ReadFile</code>/<code>ReadLink</code> are capped at <code>DefaultMaxReadSize</code> (1 GiB, <code>SetMaxReadSize</code> changes it) and refused with <code>ErrTooLarge</code>; block pointer sizes are limited to 16 MiB as OpenZFS does."
+    desc: "Copy-on-write pooled storage filesystem — single pool, single vdev writer (multi-vdev/RAID-Z read-only). Read, write, format, snapshots/clones and grow/shrink. Block checksums are verified on read (fletcher, SHA-2, and salted BLAKE3, Skein and Edon-R); lz4 uses the shared go-compressions decoder. <code>ReadFile</code>/<code>ReadLink</code> are capped at <code>DefaultMaxReadSize</code> (1 GiB, <code>SetMaxReadSize</code> changes it) and refused with <code>ErrTooLarge</code>; block pointer sizes are limited to 16 MiB as OpenZFS does. Reads decode records in parallel (v0.8.0, checksums still verified, a damaged copy still falls back to another DVA): on 4 vCPUs sequential lz4 3361 MiB/s against the kernel's 2072 and zstd 1876 against 1000; random 4 KiB reads of compressed data hit a record cache and run 1.8 to 9 times the kernel's rate; sequential zstd at one CPU and random reads of uncompressed data are still behind the kernel."
   - name: cab
     kind: driver
     ci: true
