@@ -70,11 +70,11 @@ modules:
   - name: apfs
     kind: driver
     ci: true
-    desc: "Apple File System — real APFS on-disk (kext-mountable), GPT-aware. Read, write, format, symlinks, snapshots and container resize. Input-driven allocations are bounded before they are made: file reads by the backing store's real size, sparse holes and decmpfs sizes by 1 GiB (<code>safeio.ErrTooLarge</code>)."
+    desc: "Apple File System — real APFS on-disk (kext-mountable), GPT-aware. Read, write, format, symlinks, snapshots and container resize. Since v0.7.0 every object's Fletcher-64 checksum is verified on read (older checkpoint tried when the superblock fails; typed <code>*ChecksumError</code>). Input-driven allocations are bounded before they are made: file reads by the backing store's real size, sparse holes and decmpfs sizes by 1 GiB (<code>safeio.ErrTooLarge</code>)."
   - name: btrfs
     kind: driver
     ci: true
-    desc: "Copy-on-write Linux filesystem with snapshots and subvolumes. Single-device, CRC32c (btrfs-progs ≥ 5.x). Read, write, format. Reads kernel zstd extents and LZO (shared go-compressions decoder). Every allocation sized from the image is checked against what the format can produce first: a compressed extent is at most 128 KiB (the kernel's <code>BTRFS_MAX_UNCOMPRESSED</code>), overlapping extent items are refused."
+    desc: "Copy-on-write Linux filesystem with snapshots and subvolumes. Single-device, CRC32c (btrfs-progs ≥ 5.x). Read, write, format. Since v0.7.0 the superblock and every tree block are checksum-verified on read (backup superblocks tried; a mismatch is a typed <code>*ChecksumError</code>). Reads kernel zstd extents and LZO (shared go-compressions decoder). Every allocation sized from the image is checked against what the format can produce first: a compressed extent is at most 128 KiB (the kernel's <code>BTRFS_MAX_UNCOMPRESSED</code>), overlapping extent items are refused."
   - name: exfat
     kind: driver
     ci: true
@@ -82,7 +82,7 @@ modules:
   - name: ext4
     kind: driver
     ci: true
-    desc: "Linux ext4 — extents, 64-bit block numbers, flex_bg, directory htree, journaling, metadata_csum (CRC32c). Read, write, format, symlinks, online grow/shrink. <code>ReadFile</code> is capped at the smaller of the declared filesystem size and <code>DefaultMaxReadSize</code> (1 GiB, <code>SetMaxReadSize</code> changes it) and refused with <code>ErrTooLarge</code>; overlapping extent leaves are refused."
+    desc: "Linux ext4 — extents, 64-bit block numbers, flex_bg, directory htree, journaling, metadata_csum (CRC32c). Read, write, format, symlinks, online grow/shrink. Since v0.6.0 metadata_csum checksums (superblock, group descriptors, inodes, bitmaps, directory tails) are verified on read; a mismatch is a typed <code>*ChecksumError</code>. <code>ReadFile</code> is capped at the smaller of the declared filesystem size and <code>DefaultMaxReadSize</code> (1 GiB, <code>SetMaxReadSize</code> changes it) and refused with <code>ErrTooLarge</code>; overlapping extent leaves are refused."
   - name: fat32
     kind: driver
     ci: true
